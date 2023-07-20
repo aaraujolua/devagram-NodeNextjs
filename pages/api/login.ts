@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { conectarMongoDb } from '../../middlewares/conectar-mongodb'
+import { conectarMongoDb } from '@/middlewares/conectarMongoDB';
 import type { respostaPadraoMsg } from '@/types/RespostaPadraoMsg';
 import type { LoginResposta } from '@/types/LoginResposta';
 import md5 from 'md5';
