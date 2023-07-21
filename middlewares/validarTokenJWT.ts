@@ -1,26 +1,46 @@
-import type { NextApiRequest, NextApiResponse, NextApiHandler } from "next";
-import type { respostaPadraoMsg } from "@/types/RespostaPadraoMsg";
-import jwt from 'jsonwebtoken';
+import type {NextApiRequest, NextApiResponse, NextApiHandler} from 'next';
+import type { respostaPadraoMsg } from '@/types/RespostaPadraoMsg';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
 export const validarTokenJWT = (handler : NextApiHandler) =>
-    (req : NextApiRequest, res : NextApiResponse<respostaPadraoMsg>) => {
+    (req : NextApiRequest, res : NextApiResponse<respostaPadraoMsg | any[]>) => {
 
-    const {MINHA_CHAVE_JWT} = process.env;
-    if(!MINHA_CHAVE_JWT) {
-        return res.status(500).json({ error : 'ENV chave JWT não informada na execução do processo'})
-    }
-
-    if(!req || req.headers) {
-        return res.status(401).json({ error : 'Não foi possível validar o token de acesso'});
-    }
-
-    if(req.method !== 'OPTIONS') {
-        const authorization = req.headers['authorization'];
-        if(!authorization) {
-            return res.status(401).json({ error : 'Não foi possíve validar o token de acesso'});
+    try{
+        const {MINHA_CHAVE_JWT} = process.env;
+        if(!MINHA_CHAVE_JWT){
+            return res.status(500).json({ error : 'ENV chave JWT não inforada na execução do projeto'});
         }
+    
+        if(!req || !req.headers) {
+            return res.status(401).json({error: 'Não foi possivel validar o token de acesso'});
+        }
+        
+        if(req.method !== 'OPTIONS') {
+            const authorization = req.headers['authorization'];
+            if(!authorization){
+                return res.status(401).json({error: 'Não foi possivel validar o token de acesso'});
+            }
+    
+            const token = authorization.substring(7);
+            if(!token){
+                return res.status(401).json({error: 'Não foi possivel validar o token de acesso'});
+            }
+    
+            const decoded = jwt.verify(token, MINHA_CHAVE_JWT) as JwtPayload;
+            if(!decoded){
+                return res.status(401).json({error: 'Não foi possivel validar o token de acesso'});
+            }
+    
+            if(!req.query){
+                req.query = {};
+            }
+    
+            req.query.userId = decoded._id;
+        }
+    }catch(e){
+        console.log(e);
+        return res.status(401).json({error: 'Não foi possivel validar o token de acesso'});    
     }
 
-    const token = authorization.substring(7);
-  
-    }
+    return handler(req, res);
+}
