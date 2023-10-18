@@ -2,16 +2,17 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import type { respostaPadraoMsg } from "@/types/RespostaPadraoMsg";
 import { validarTokenJWT } from "@/middlewares/validarTokenJWT";
 import { conectarMongoDb } from "@/middlewares/conectarMongoDB";
-import { UsuarioModel } from "@/models/UsuarioModel";
+import { usuarioModel } from "@/models/UsuarioModel";
 import nc from 'next-connect';
 import { upload, uploadImagemCosmic } from "@/services/uploadImagemCosmic";
+import { politicaCORS } from '@/middlewares/politicaCORS';
 
 const handler = nc()
     .use(upload.single('file'))
     .put(async(req : any, res : NextApiResponse<respostaPadraoMsg>) => {
         try{
             const {userId} = req?.query;
-            const usuario = await UsuarioModel.findById(userId);
+            const usuario = await usuarioModel.findById(userId);
             
             if(!usuario){
                 return res.status(400).json({error : 'Usuário não encontrado'});
@@ -30,7 +31,7 @@ const handler = nc()
                 } 
             }
 
-            await UsuarioModel
+            await usuarioModel
                 .findByIdAndUpdate({_id : usuario._id}, usuario);
 
             return res.status(200).json({msg : 'Usuário alterado com sucesso'});
@@ -42,7 +43,7 @@ const handler = nc()
     .get(async (req : NextApiRequest, res : NextApiResponse<respostaPadraoMsg | any>) => {
         try {
             const {userId} = req?.query;
-            const usuario = await UsuarioModel.findById(userId);
+            const usuario = await usuarioModel.findById(userId);
             console.log('usuario', usuario);
             usuario.senha = null;
             return res.status(200).json(usuario);
@@ -59,5 +60,4 @@ export const config = {
     }
 }
 
-export default validarTokenJWT(conectarMongoDb(handler));
-// politicaCORS()
+export default politicaCORS(validarTokenJWT(conectarMongoDb(handler)));

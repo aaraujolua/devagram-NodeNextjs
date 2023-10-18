@@ -2,14 +2,15 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import type { respostaPadraoMsg } from "@/types/RespostaPadraoMsg";
 import { validarTokenJWT } from "@/middlewares/validarTokenJWT";
 import { conectarMongoDb } from "@/middlewares/conectarMongoDB";
-import { UsuarioModel } from "@/models/UsuarioModel";
+import { usuarioModel } from "@/models/UsuarioModel";
 import { publicacaoModel } from "@/models/PublicacaoModel";
+import { politicaCORS } from '@/middlewares/politicaCORS';
 
 const feedEndpoint = async (req : NextApiRequest, res : NextApiResponse<respostaPadraoMsg | any>) => {
     try {
         if(req.method === 'GET') {
             if(req?.query?.id) {
-                const usuario = await UsuarioModel.findById(req?.query.id);
+                const usuario = await usuarioModel.findById(req?.query.id);
                 if(!usuario) {
                     return res.status(400).json({error: 'Usuário não encontrado'});
                 }
@@ -26,4 +27,4 @@ const feedEndpoint = async (req : NextApiRequest, res : NextApiResponse<resposta
     }
 }
 
-export default validarTokenJWT(conectarMongoDb(feedEndpoint));
+export default politicaCORS(validarTokenJWT(conectarMongoDb(feedEndpoint)));

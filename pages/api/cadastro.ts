@@ -1,11 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import type { respostaPadraoMsg } from "@/types/RespostaPadraoMsg";
 import type { cadastroRequisicao } from "@/types/CadastroRequisicao";
-import { UsuarioModel } from "@/models/UsuarioModel";
+import { usuarioModel } from "@/models/UsuarioModel";
 import { conectarMongoDb } from "@/middlewares/conectarMongoDB";
+import nc from 'next-connect';
 import md5 from 'md5';
 import { upload, uploadImagemCosmic } from "@/services/uploadImagemCosmic";
-import nc from 'next-connect';
+import { politicaCORS } from '@/middlewares/politicaCORS';
+
 
 const handler = nc ()
     .use(upload.single('file'))
@@ -27,7 +29,7 @@ const handler = nc ()
             }
     
             //verificar duplicidades
-            const usuariosComMesmoEmail = await UsuarioModel.find({email : usuario.email});
+            const usuariosComMesmoEmail = await usuarioModel.find({email : usuario.email});
             if (usuariosComMesmoEmail && usuariosComMesmoEmail.length > 0) {
                 return res.status(400).json({error: 'Já existe uma conta com o e-mail informado'});
             }
@@ -42,7 +44,7 @@ const handler = nc ()
                 senha : md5(usuario.senha),
                 avatar : image?.media?.url
             }
-            await UsuarioModel.create(usuarioASerSalvo);
+            await usuarioModel.create(usuarioASerSalvo);
             return res.status(200).json({msg: 'Usuário cadastrado com sucesso!'})
             
         } catch(e) {
@@ -57,4 +59,4 @@ export const config = {
     }
 }    
 
-export default conectarMongoDb(handler);
+export default politicaCORS(conectarMongoDb(handler));

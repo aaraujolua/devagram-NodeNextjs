@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 
-const UsuarioSchema = new Schema({
+const usuarioSchema = new Schema({
     nome: {type : String, required : true},
     email: {type : String, required : true},
     senha: {type : String, required : true},
@@ -10,4 +10,4 @@ const UsuarioSchema = new Schema({
     publicacoes: {type : Number, default : 0},
 });
 
-export const UsuarioModel = (mongoose.models.usuarios || mongoose.model('usuarios', UsuarioSchema));
+export const usuarioModel = (mongoose.models.usuarios || mongoose.model('usuarios', usuarioSchema));

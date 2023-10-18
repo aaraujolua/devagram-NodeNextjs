@@ -3,8 +3,9 @@ import { conectarMongoDb } from '@/middlewares/conectarMongoDB';
 import type { respostaPadraoMsg } from '@/types/RespostaPadraoMsg';
 import type { LoginResposta } from '@/types/LoginResposta';
 import md5 from 'md5';
-import { UsuarioModel } from '@/models/UsuarioModel';
+import { usuarioModel } from '@/models/UsuarioModel';
 import jwt from 'jsonwebtoken'; 
+import { politicaCORS } from '@/middlewares/politicaCORS';
 
 const endpointLogin = async (
     req : NextApiRequest,
@@ -18,7 +19,7 @@ const endpointLogin = async (
     if(req.method === 'POST') {
         const {login, senha} = req.body;
 
-        const usuariosEncontrados = await UsuarioModel.find({email : login, senha: md5(senha)})
+        const usuariosEncontrados = await usuarioModel.find({email : login, senha: md5(senha)})
         if(usuariosEncontrados && usuariosEncontrados.length > 0) {
             const usuarioEncontrado = usuariosEncontrados[0];   
 
@@ -34,4 +35,4 @@ const endpointLogin = async (
     return res.status(405).json({error: 'Método informado não é válido'});
 }
 
-export default conectarMongoDb(endpointLogin);
+export default politicaCORS(conectarMongoDb(endpointLogin));
