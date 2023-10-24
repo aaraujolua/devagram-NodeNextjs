@@ -22,7 +22,7 @@ const endpointSeguir =
             // id do usuario e ser seguidor - query
             const usuarioASerSeguido = await usuarioModel.findById(id);
             if(!usuarioASerSeguido){
-                return res.status(400).json({ error : 'Usuario a ser seguido nao encontrado'});
+                return res.status(400).json({error : 'Usuario a ser seguido nao encontrado'});
             }
 
             // buscar se EU LOGADO sigo ou nao esse usuario
